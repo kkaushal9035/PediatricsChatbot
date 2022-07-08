@@ -6,13 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Twilio;
 using Twilio.TwiML;
-using OrderBot;
+using AppointmentBot;
 
 
 namespace wireless.Pages
 {
-
-
  [IgnoreAntiforgeryToken(Order = 1001)]
     public class IndexModel : PageModel
     {

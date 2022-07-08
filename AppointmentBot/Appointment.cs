@@ -1,8 +1,8 @@
 using Microsoft.Data.Sqlite;
 
-namespace OrderBot
+namespace AppointmentBot
 {
-    public class Order
+    public class Appointment
     {
         private string _size;
         private string _phone;

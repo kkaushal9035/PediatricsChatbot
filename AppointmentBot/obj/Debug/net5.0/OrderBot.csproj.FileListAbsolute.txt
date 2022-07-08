@@ -1,0 +1,5 @@
+E:\QA\Sem2\UserExperienceEvaluation\Project - Pediatrics Chatbot\PediatricsChatbot\AppointmentBot\obj\Debug\net5.0\OrderBot.csproj.AssemblyReference.cache
+E:\QA\Sem2\UserExperienceEvaluation\Project - Pediatrics Chatbot\PediatricsChatbot\AppointmentBot\obj\Debug\net5.0\OrderBot.GeneratedMSBuildEditorConfig.editorconfig
+E:\QA\Sem2\UserExperienceEvaluation\Project - Pediatrics Chatbot\PediatricsChatbot\AppointmentBot\obj\Debug\net5.0\OrderBot.AssemblyInfoInputs.cache
+E:\QA\Sem2\UserExperienceEvaluation\Project - Pediatrics Chatbot\PediatricsChatbot\AppointmentBot\obj\Debug\net5.0\OrderBot.AssemblyInfo.cs
+E:\QA\Sem2\UserExperienceEvaluation\Project - Pediatrics Chatbot\PediatricsChatbot\AppointmentBot\obj\Debug\net5.0\OrderBot.csproj.CoreCompileInputs.cache

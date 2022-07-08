@@ -1,12 +1,12 @@
 using System.IO;
 using System;
 
-namespace OrderBot
+namespace AppointmentBot
 {
     public class DB
     {
         public static string GetConnectionString(){
-            string sFName = "/Orders.db";
+            string sFName = "/Appointment.db";
             string sPrefix = "Data Source=";
             string sPath = Directory.GetCurrentDirectory();
             string[] subs = sPath.Split(Path.DirectorySeparatorChar);

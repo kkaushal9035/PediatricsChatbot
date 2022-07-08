@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <ItemGroup>
-    <ProjectReference Include="..\OrderBot\OrderBot.csproj" />
+    <ProjectReference Include="..\AppointmentBot\AppointmentBot.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Twilio" Version="5.9.8" />

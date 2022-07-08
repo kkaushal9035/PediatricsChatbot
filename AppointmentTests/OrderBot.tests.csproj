@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\OrderBot\OrderBot.csproj" />
+    <ProjectReference Include="..\AppointmentBot\AppointmentBot.csproj" />
   </ItemGroup>
 
 </Project>
