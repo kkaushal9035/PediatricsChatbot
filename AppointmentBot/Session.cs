@@ -50,19 +50,18 @@ namespace AppointmentBot
                             this.nCur = State.CANCEL_REFERENCE;
                             break;
                         default:
-                            sMessage = "You have chosen incorrect option, thank you for contacting Pediatrics clinic.";
-                            this.nCur = State.WELCOMING;
+                            sMessage = "You have chosen incorrect option, please choose from available options 1, 2, 3, or 4.";
                             break;
                     }
                    }
                    else
                    {
-                     sMessage = "You have chosen incorrect option, thank you for contacting Pediatrics clinic.";
-                     this.nCur = State.WELCOMING;       
+                     sMessage = "You have chosen incorrect option, please choose from available options 1, 2, 3, or 4.";
+                          
                    }
                     break;  
                 case State.BOOK_PATIENT_NAME:
-                    this.aApp.name = sInMessage;
+                    this.aApp.patientName = sInMessage;
                     sMessage = "Enter Patient's Age in months.\nFor example: For a 2 year old, enter 24. \nIf Patient is less than 1 month old, enter \"newborn\".";
                     this.nCur = State.BOOK_PATIENT_AGE;
                     break;
@@ -83,16 +82,16 @@ namespace AppointmentBot
                     }
                     else
                     {
-                        if(this.app.age.indexOf("newborn",StringComparison.OrdinalIgnoreCase) >= 0)
-                        {
-                            sMessage = "Enter reason for visit";
-                             this.nCur = State.BOOK_REASON;
-                        }
-                        else
-                        {
-                            sMessage = "You have entered incorrect input for age, thank you for contacting Pediatrics clinic.";
-                            this.nCur = State.WELCOMING;  
-                        }
+                        // if(this.aApp.age.indexOf("newborn",StringComparison.OrdinalIgnoreCase) >= 0)
+                        // {
+                        //     sMessage = "Enter reason for visit";
+                        //      this.nCur = State.BOOK_REASON;
+                        // }
+                        // else
+                        // {
+                        //     sMessage = "You have entered incorrect input for age, thank you for contacting Pediatrics clinic.";
+                        //     this.nCur = State.WELCOMING;  
+                        // }
                     }
                     break;  
                 case State.BOOK_REASON:
