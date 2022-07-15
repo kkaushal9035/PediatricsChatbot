@@ -6,7 +6,7 @@ namespace AppointmentBot
     {
         private enum State
         {
-            WELCOMING, OPTION, BOOK, BOOK_DAY, BOOK_TIME, BOOK_PATIENT_NAME, BOOK_PATIENT_AGE, BOOK_REASON, VIEW, VIEW_GET_REFERENCE, RESCHEDULE, RESCHEDULE_GET_REFERENCE, RESCHEDULE_TIME, RESCHEDULE_DATE, CANCEL, CANCEL_REFERENCE
+            WELCOMING, OPTION, BOOK, BOOK_DAY, BOOK_TIME, BOOK_PATIENT_NAME, BOOK_PATIENT_AGE, BOOK_REASON, VIEW, VIEW_GET_REFERENCE, RESCHEDULE, RESCHEDULE_GET_REFERENCE, RESCHEDULE_TIME, RESCHEDULE_DATE, CANCEL, CANCEL_REFERENCE, VIEW_OPTIONS
         }
 
         private State nCur = State.WELCOMING;
@@ -60,6 +60,57 @@ namespace AppointmentBot
                           
                    }
                     break;  
+                case State.VIEW_GET_REFERENCE:
+                    this.aApp.referenceId = sInMessage;
+                    bool found = this.aApp.searchByReferenceID(this.aApp.referenceId);
+                    if(found == false)
+                    {
+                        sMessage = "You have entered incorrect reference ID for your appointment.\n Please choose from below:\n1. if you wish to re-enter your reference ID \n2. if you wish to book a new appointment.";
+                        this.nCur = State.VIEW_OPTIONS;
+                    }
+                    else
+                    {
+                        //display information
+                       sMessage = this.aApp.viewAppointmentInfo(this.aApp.referenceId) +"\n.Thank you for contacting Group 4 Pediatrics Clinic.";
+                        this.nCur = State.WELCOMING;
+                    }
+                    
+                    break;
+                case State.VIEW_OPTIONS:
+                    if(int.TryParse(sInMessage, out int viewOption))
+                    {
+                        if(viewOption == 1)
+                        {
+                            sMessage = "Enter reference ID for your appointment to view details";
+                            this.nCur = State.VIEW_GET_REFERENCE;
+                        }
+                        else if(viewOption == 2)
+                        {
+                            sMessage = "Enter patient's name to book new appointment";
+                            this.nCur = State.BOOK_PATIENT_NAME;
+                        }
+                        else
+                        {
+                            sMessage = "You have chosen incorrect option, please choose from available options 1 or 2.";
+                        }
+                    }
+                    break;
+                case State.RESCHEDULE_GET_REFERENCE:
+                    break;
+                case State.CANCEL_REFERENCE:
+                    this.aApp.referenceId = sInMessage;
+                    bool found = this.aApp.searchByReferenceID(this.aApp.referenceId);
+                    if(found == false)
+                    {
+                        sMessage = "You have chosen incorrect option, please choose from available options 1, 2, 3, or 4.";
+                    }
+                    else
+                    {
+                        //display information
+                       sMessage = this.aApp.viewAppointmentInfo(this.aApp.referenceId) +"\n.Thank you for contacting Group 4 Pediatrics Clinic.";
+                        this.nCur = State.WELCOMING;
+                    }
+                    break;
                 case State.BOOK_PATIENT_NAME:
                     this.aApp.patientName = sInMessage;
                     sMessage = "Enter Patient's Age in months.\nFor example: For a 2 year old, enter 24. \nIf Patient is less than 1 month old, enter \"newborn\".";
@@ -82,16 +133,15 @@ namespace AppointmentBot
                     }
                     else
                     {
-                        // if(this.aApp.age.indexOf("newborn",StringComparison.OrdinalIgnoreCase) >= 0)
-                        // {
-                        //     sMessage = "Enter reason for visit";
-                        //      this.nCur = State.BOOK_REASON;
-                        // }
-                        // else
-                        // {
-                        //     sMessage = "You have entered incorrect input for age, thank you for contacting Pediatrics clinic.";
-                        //     this.nCur = State.WELCOMING;  
-                        // }
+                         if(this.aApp.age.IndexOf("newborn",StringComparison.OrdinalIgnoreCase) >= 0)
+                         {
+                             sMessage = "Enter reason for visit";
+                              this.nCur = State.BOOK_REASON;
+                         }
+                         else
+                         {
+                             sMessage = "You have entered incorrect input for age, please enter age in months from 0 to 216 or \"newborn\" for patient less than a month old.";  
+                         }
                     }
                     break;  
                 case State.BOOK_REASON:
@@ -101,7 +151,31 @@ namespace AppointmentBot
                     this.nCur = State.BOOK_DAY;
                     break; 
                 case State.BOOK_DAY:
+                    this.aApp.appDay = sInMessage;
+                    if(this.aApp.appDay == 1 || this.aApp.appDay == 2 || this.aApp.appDay == 3 || this.aApp.appDay == 4 || this.aApp.appDay == 5 || this.aApp.appDay == 6)
+                    {
+                         //fetch dates from DB based on days selected
+
+                         //add check if the selected day is available else stay in current state and ask user again
+                         sMessage = "Please choose from the below mentioned available slots:\n1.9AM - 11AM\n2.12PM-2PM\n3.3PM-5PM";
+                         this.nCur = State.BOOK_TIME;
+                    }
+                    else
+                    {
+                        sMessage = "You have entered incorrect choice for days, please choose between 1 to 6.";
+                    }
                     break;  
+                case State.BOOK_TIME:
+                    this.aApp.appTime = sInMessage;
+                    if(this.aApp.appTime == 1 || this.aApp.appTime == 2 || this.aApp.appTime == 3 )
+                    {
+                        //check DB for available slots between user's selection
+                    }
+                    else
+                    {
+                        sMessage = "You have entered incorrect choice for time slots, please choose between 1, 2, or 3.";
+                    }
+                    break;
             }
             System.Diagnostics.Debug.WriteLine(sMessage);
             return sMessage;
