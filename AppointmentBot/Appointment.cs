@@ -12,6 +12,12 @@ namespace AppointmentBot
         private string _appTime;
         private string _appDate;
         private string _referenceId;
+        private string _phone;
+
+        public string Phone{
+            get => _phone;
+            set => _phone = value;
+        }
 
         public string option{
             get => _option;
@@ -115,7 +121,11 @@ namespace AppointmentBot
 
        }
 
-       public string viewAppointmentInfo(string referenceid)
+    public string viewAppointmentInfo()
+    {
+        
+    }
+       public string viewAppointmentInfoByID(string referenceid)
        {
            using (var connection = new SqliteConnection(DB.GetConnectionString()))
             {
@@ -206,7 +216,7 @@ namespace AppointmentBot
 
        }
 
-       public void searchAvailableDay(){
+       public List<String> searchAvailableDay(){
            using (var connection = new SqliteConnection(DB.GetConnectionString()))
             {
                 connection.Open();
@@ -237,7 +247,7 @@ namespace AppointmentBot
 
        }
 
-       public void searchAvailableTime(){
+       public List<String> searchAvailableTime(int optionForTime){
            using (var connection = new SqliteConnection(DB.GetConnectionString()))
             {
                 connection.Open();
