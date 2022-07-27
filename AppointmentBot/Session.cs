@@ -6,7 +6,13 @@ namespace AppointmentBot
     {
         private enum State
         {
-            WELCOMING, VIEW_APP_OPTIONS,CANCEL_BYNAME, CANCEL_OPTION, VIEW_GET_PATIENT, OPTION, BOOK, BOOK_DAY,BOOK_DATE, BOOK_TIME, BOOK_PATIENT_NAME, BOOK_PATIENT_AGE, BOOK_PATIENT_AGE_CHOICE, BOOK_REASON, BOOK_CONFIRMATION, VIEW, VIEW_GET_REFERENCE, RESCHEDULE, RESCHEDULE_GET_REFERENCE, RESCHEDULE_TIME, RESCHEDULE_DATE, CANCEL, CANCEL_REFERENCE, VIEW_OPTIONS
+            WELCOMING, OPTION,
+            CANCEL_BYNAME, CANCEL_CONFIRMATIONBYNAME, CANCEL_BYREFERENCE, CANCEL_CONFIRMATIONBYID, CANCEL_OPTION,
+            VIEW_GET_PATIENT, VIEW_APP_OPTIONS, VIEW_GET_REFERENCE, VIEW_OPTIONS,
+            BOOK_DAY, BOOK_DATE, BOOK_TIME, BOOK_PATIENT_NAME, BOOK_PATIENT_AGE, 
+            BOOK_PATIENT_AGE_CHOICE, BOOK_REASON, BOOK_CONFIRMATION, EXISTING_APP_OPTION,
+            RESCHEDULE_OPTION, RESCHEDULE_BYREFERENCE, RESCHEDULE_BYNAME, RESCHEDULE_DAY, RESCHEDULE_DATE,
+            RESCHEDULE_TIME, RESCHEDULE_CONFIRMATION
         }
 
         private State nCur = State.WELCOMING;
@@ -46,8 +52,8 @@ namespace AppointmentBot
                             this.nCur = State.VIEW_APP_OPTIONS;
                             break;
                         case 3:
-                            sMessage.add("Enter reference ID for your appointment to reschedule");
-                            this.nCur = State.RESCHEDULE_GET_REFERENCE;
+                            sMessage.add("Choose from below to reschedule your upcoming appointment:\n1. If you have reference ID.\n2. If you do not have reference ID and reschedule with Patient Name.");
+                            this.nCur = State.RESCHEDULE_OPTION;
                             break;
                         case 4:
                             sMessage.add("Choose from below to cancel your upcoming appointment:\n1. If you have reference ID.\n2. If you do not have reference ID and cancel with Patient Name.");
@@ -64,6 +70,173 @@ namespace AppointmentBot
                           
                    }
                     break;  
+                case State.RESCHEDULE_OPTION:
+                    if(int.TryParse(sInMessage, out int opt))
+                        {
+                            switch (opt)
+                            {
+                                case 1:
+                                    sMessage.add("Enter the REFERENCE ID for your appointment");
+                                    this.nCur = State.RESCHEDULE_BYREFERENCE;
+                                    break;
+                                case 2:
+                                    sMessage.add("Enter Patient's Name for your appointment");
+                                    this.nCur = State.RESCHEDULE_BYNAME;
+                                    break;
+                                default:
+                                    sMessage.add("You have chosen incorrect option");
+                                    sMessage.add("Choose from below to reschedule your upcoming appointment:\n1. If you have reference ID.\n2. If you do not have reference ID and reschedule with Patient Name.");
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            sMessage.add("You have chosen incorrect option");
+                            sMessage.add("Choose from below to reschedule your upcoming appointment:\n1. If you have reference ID.\n2. If you do not have reference ID and reschedule with Patient Name.");
+                        }
+                    break;
+                case State.RESCHEDULE_BYREFERENCE:
+                    this.aApp.referenceId = sInMessage;
+                    bool found = this.aApp.searchByReferenceID(this.aApp.referenceId);
+                    if(found == false)
+                    {
+                        sMessage.add("We could not find any record of upcoming appointment to reschedule for reference ID "+this.aApp.referenceId);
+                        this.nCur = State.WELCOMING;
+                    }
+                    else
+                    {
+                        //display information
+                        sMessage.add("Your upcoming appointment information is:");
+                        sMessage.add(this.aApp.viewAppointmentInfoByID(this.aApp.referenceId));
+                        sMessage.add("Choose option to select your preferred day to reschedule from below for appointment:\n1.Monday\n2.Tuesday\n3.Wednesday\n4.Thursday\n5.Friday\n6.Saturday");
+                        this.nCur = State.RESCHEDULE_DAY;
+                    }
+                    break;
+                case State.RESCHEDULE_BYNAME:
+                    this.aApp.patientName = sInMessage;
+                    bool found = this.aApp.searchAppointmentByName();
+                    if(found == false)
+                    {
+                        sMessage.add("We could not find any record of upcoming appointment to reschedule for patient "+this.aApp.patientName);
+                        this.nCur = State.WELCOMING;
+                    }
+                    else
+                    {
+                        //display information
+                        sMessage.add("Your upcoming appointment information is:");
+                        sMessage.add(this.aApp.viewAppointmentInfoByName());
+                        sMessage.add("Choose option to select your preferred day to reschedule from below for appointment:\n1.Monday\n2.Tuesday\n3.Wednesday\n4.Thursday\n5.Friday\n6.Saturday");
+                        this.nCur = State.RESCHEDULE_DAY;
+                    }
+                    break;
+                case State.RESCHEDULE_DAY:
+                    if(int.TryParse(sInMessage, out int dayOption))
+                    {
+                        this.aApp.appDay = sInMessage;
+                        if(dayOption == 1 || dayOption == 2 || dayOption == 3 || dayOption == 4 || dayOption == 5 || dayOption == 6)
+                        {
+                            //fetch dates from DB based on days selected
+                            availableDates = searchAvailableDay(this.aApp.appDay);
+                            sMessage.add("Please choose your availability for below dates for appointment:\n1. "+availableDates[0]+"\n2. "+availableDates[1]+"\n3. "+availableDates[2]+"\n4. "+availableDates[3]);
+                            this.nCur = State.RESCHEDULE_DATE;
+                        }
+                        else
+                        {
+                            sMessage.add("You have entered incorrect choice for days, please choose between 1 to 6.");
+                        }
+                    }
+                    else
+                    {
+                        sMessage.add("You have entered incorrect choice for days, please choose between 1 to 6.");
+                    }
+                    break;
+                case State.RESCHEDULE_DATE:
+                     if(int.TryParse(sInMessage, out optionVal))
+                    {
+                        switch(optionVal)
+                        {
+                            case 1:
+                                this.aApp.appDate = availableDates[0];
+                                sMessage.add("Please choose from the below mentioned available slots:\n1.9AM - 11AM\n2.12PM-2PM\n3.3PM-5PM");
+                                this.nCur = State.RESCHEDULE_TIME;
+                                break;
+                            case 2:
+                                this.aApp.appDate = availableDates[1];
+                                sMessage.add("Please choose from the below mentioned available slots:\n1.9AM - 11AM\n2.12PM-2PM\n3.3PM-5PM");
+                                this.nCur = State.RESCHEDULE_TIME;
+                                break;
+                            case 3:
+                                this.aApp.appDate = availableDates[2];
+                                sMessage.add("Please choose from the below mentioned available slots:\n1.9AM - 11AM\n2.12PM-2PM\n3.3PM-5PM");
+                                this.nCur = State.RESCHEDULE_TIME;
+                                break;
+                            case 4:
+                                this.aApp.appDate = availableDates[3];
+                                sMessage.add("Please choose from the below mentioned available slots:\n1.9AM - 11AM\n2.12PM-2PM\n3.3PM-5PM");
+                                this.nCur = State.RESCHEDULE_TIME;
+                                break;
+                            default:
+                                sMessage.add("You have chosen incorrect option for appointment date.\nPlease choose your availability for below dates for appointment:\n1. "+availableDates[0]+"\n2. "+availableDates[1]+"\n3. "+availableDates[2]+"\n4. "+availableDates[3]);  
+                                break;
+                        } 
+                    }
+                    else
+                    {
+                        sMessage.add("You have chosen incorrect option for appointment date.\nPlease choose your availability for below dates for appointment:\n1. "+availableDates[0]+"\n2. "+availableDates[1]+"\n3. "+availableDates[2]+"\n4. "+availableDates[3]);  
+                    }
+                    break;
+                case State.RESCHEDULE_TIME:
+                    if(int.TryParse(sInMessage, out int timeChoice ))
+                    {
+                        if(timeChoice == 1 || timeChoice == 2 || timeChoice == 3 )
+                        {
+                            //check DB for available slots between user's selection
+                            availableTimeSlot = aApp.searchAvailableTime(timeChoice);
+                            if(availableTimeSlot[0].equals("false", StringComparison.OrdinalIgnoreCase))
+                            {
+                                sMessage.add("Sorry, no available slots for your chosen time slot.\nPlease choose another day for appointment:\n1.Monday\n2.Tuesday\n3.Wednesday\n4.Thursday\n5.Friday\n6.Saturday");
+                                this.nCur = State.RESCHEDULE_DAY;
+                            }
+                            else
+                            {
+                                this.aApp.appTime = availableTimeSlot[0];
+                                sMessage.add("Please enter Y to confirm the below details to finalise your booking:");
+                                sMessage.add("Patient Name: "+this.aApp.patientName+"\nAge: "+this.aApp.age+"\nAppointment Date: "+this.aApp.appDate+"\nAppointment Time: "+this.aApp.appTime+"\nReason: "+this.aApp.reason);
+                                this.nCur = State.RESCHEDULE_CONFIRMATION;
+                            }
+                        }
+                        else
+                        {
+                            sMessage.add("You have entered incorrect choice for time slots, please choose between 1, 2, or 3.");
+                        }
+                    }
+                    else
+                    {
+                       sMessage.add("You have entered incorrect choice for time slots, please choose between 1, 2, or 3.");
+                    }
+                    break;
+                case State.RESCHEDULE_CONFIRMATION:
+                    if(sInMessage.equals("Y",StringComparison.OrdinalIgnoreCase))
+                    {
+                        //insert appointment details in DB
+                        this.aApp.updateAppointmentInfo();
+                        sMessage.add("Your appointment has been successfully rescheduled.\nThank you for contacting Group 4 Pediatrics Clinic!");
+                        if(this.aApp.patientName != null)
+                        {
+                            sMessage.add(this.aApp.viewAppointmentInfoByName());
+                        }
+                        else if(this.aApp.referenceId !=null)
+                        {
+                            sMessage.add(this.aApp.viewAppointmentInfoByID());
+                        }
+                        this.nCur = State.WELCOMING;
+                    }
+                    else
+                    {
+                        sMessage.add("You have chosen to not reschedule an appointment with us.\nThank you for contacting Group 4 Pediatrics Clinic!");
+                        this.nCur = State.WELCOMING;
+                    }
+                    break;
                 case State.VIEW_APP_OPTIONS:
                     if(int.TryParse(sInMessage, out int opt))
                     {
@@ -91,7 +264,7 @@ namespace AppointmentBot
                     break;
                 case State.VIEW_GET_PATIENT:
                     this.aApp.patientName = sInMessage;
-                    bool found = this.aApp.searchForUpcomingAppointment();
+                    bool found = this.aApp.searchAppointmentByName();
                     if(found == false)
                     {
                         sMessage.add("We could not find any upcoming appointment for this patient from this phone number.\nThank you for contacting Group 4 Pediatrics Clinic.");
@@ -100,14 +273,13 @@ namespace AppointmentBot
                     else
                     {
                         //display information
-                       sMessage.add(this.aApp.viewAppointmentInfo() +"\n.Thank you for contacting Group 4 Pediatrics Clinic.");
+                       sMessage.add(this.aApp.viewAppointmentInfoByName() +"\n.Thank you for contacting Group 4 Pediatrics Clinic.");
                         this.nCur = State.WELCOMING;
                     }
-                    
                     break;
                 case State.VIEW_GET_REFERENCE:
                     this.aApp.referenceId = sInMessage;
-                    bool found = this.aApp.searchByReferenceID(this.aApp.referenceId);
+                    bool found = this.aApp.searchByReferenceID();
                     if(found == false)
                     {
                         sMessage.add("You have entered incorrect reference ID for your appointment.\n Please choose from below:\n1. if you wish to re-enter your reference ID \n2. if you wish to book a new appointment.");
@@ -116,7 +288,7 @@ namespace AppointmentBot
                     else
                     {
                         //display information
-                       sMessage.add(this.aApp.viewAppointmentInfoByID(this.aApp.referenceId) +"\n.Thank you for contacting Group 4 Pediatrics Clinic.");
+                       sMessage.add(this.aApp.viewAppointmentInfoByID() +"\n.Thank you for contacting Group 4 Pediatrics Clinic.");
                         this.nCur = State.WELCOMING;
                     }
                     
@@ -140,8 +312,6 @@ namespace AppointmentBot
                         }
                     }
                     break;
-                case State.RESCHEDULE_GET_REFERENCE:
-                    break;
                 case State.CANCEL_OPTION:
                     if(int.TryParse(sInMessage, out int opt))
                         {
@@ -149,7 +319,7 @@ namespace AppointmentBot
                             {
                                 case 1:
                                     sMessage.add("Enter the REFERENCE ID for your appointment");
-                                    this.nCur = State.CANCEL_REFERENCE;
+                                    this.nCur = State.CANCEL_BYREFERENCE;
                                     break;
                                 case 2:
                                     sMessage.add("Enter Patient's Name for your appointment");
@@ -168,26 +338,103 @@ namespace AppointmentBot
                         }
                     break;
                 case State.CANCEL_BYNAME:
-                    break;
-                case State.CANCEL_REFERENCE:
-                    this.aApp.referenceId = sInMessage;
-                    bool found = this.aApp.searchByReferenceID(this.aApp.referenceId);
+                    this.aApp.patientName = sInMessage;
+                    bool found = this.aApp.searchAppointmentByName();
                     if(found == false)
                     {
-                        sMessage.add("You have chosen incorrect option, please choose from available options 1, 2, 3, or 4.");
+                        sMessage.add("We could not find any record of upcoming appointment for patient "+this.aApp.referenceId);
+                        this.nCur = State.WELCOMING;
                     }
                     else
                     {
                         //display information
-                        sMessage.add(this.aApp.viewAppointmentInfo(this.aApp.referenceId) +"\n.Thank you for contacting Group 4 Pediatrics Clinic.");
+                        sMessage.add(this.aApp.viewAppointmentInfoByName() +"\n.Please enter Y to cancel this appointment.");
+                        this.nCur = State.CANCEL_CONFIRMATIONBYNAME;
+                    }
+                    break;
+                case State.CANCEL_BYREFERENCE:
+                    this.aApp.referenceId = sInMessage;
+                    bool found = this.aApp.searchByReferenceID();
+                    if(found == false)
+                    {
+                        sMessage.add("We could not find any record of upcoming appointment for reference ID "+this.aApp.referenceId);
                         this.nCur = State.WELCOMING;
                     }
+                    else
+                    {
+                        //display information
+                        sMessage.add(this.aApp.viewAppointmentInfoByID() +"\n.Please enter Y to cancel this appointment.");
+                        this.nCur = State.CANCEL_CONFIRMATIONBYID;
+                    }
+                    break;
+                case State.CANCEL_CONFIRMATIONBYID:
+                    if(sInMessage.equals("Y",StringComparison.OrdinalIgnoreCase))
+                    {
+                        //insert appointment details in DB
+                        this.aApp.deleteAppointmentInfoByID();
+                        sMessage.add("Your appointment has been successfully cancelled.\nThank you for contacting Group 4 Pediatrics Clinic!");
+                    }
+                    else
+                    {
+                        sMessage.add("You have chosen to not cancel your appointment "+this.aApp.referenceId+" with us.\nThank you for contacting Group 4 Pediatrics Clinic!");
+                    }
+                    this.nCur = State.WELCOMING;
+                    break;
+                case State.CANCEL_CONFIRMATIONBYNAME:
+                    if(sInMessage.equals("Y",StringComparison.OrdinalIgnoreCase))
+                    {
+                        //insert appointment details in DB
+                        this.aApp.deleteAppointmentInfoByName();
+                        sMessage.add("Your appointment has been successfully cancelled.\nThank you for contacting Group 4 Pediatrics Clinic!");
+                    }
+                    else
+                    {
+                        sMessage.add("You have chosen to not cancel your appointment "+this.aApp.patientName+" with us.\nThank you for contacting Group 4 Pediatrics Clinic!");
+                    }
+                    this.nCur = State.WELCOMING;
                     break;
                 case State.BOOK_PATIENT_NAME:
                     this.aApp.patientName = sInMessage;
-                    this.aApp.searchForUpcomingAppointment();
-                    sMessage.add("Please choose from below to enter Patient's Age.\n1. If Patient's age is between 1 month and 1 year. \n2. If Patient is less than 1 month old.\n3. If Patient's age is between 1 to 18 years.");
-                    this.nCur = State.BOOK_PATIENT_AGE_CHOICE;
+                    bool found=this.aApp.searchAppointmentByName();
+                     if(found == true)
+                    {
+                        //display information
+                        sMessage.add("You already have an upcoming appointment");
+                        sMessage.add(this.aApp.viewAppointmentInfoByName());
+                        sMessage.add("Enter 1 to reschedule the existing appointment\nEnter 2 to keep the appointment as it is and exit.");
+                        this.nCur = State.EXISTING_APP_OPTION;
+                    }
+                    else
+                    {
+                        //check if appointment already exists for this patient
+                        sMessage.add("Please choose from below to enter Patient's Age.\n1. If Patient's age is between 1 month and 1 year. \n2. If Patient is less than 1 month old.\n3. If Patient's age is between 1 to 18 years.");
+                        this.nCur = State.BOOK_PATIENT_AGE_CHOICE;
+                    }
+                    break;
+                case State.EXISTING_APP_OPTION:
+                    if(int.TryParse(sInMessage, out int opt))
+                    {
+                        switch (opt)
+                        {
+                            case 1:
+                                sMessage.add("Choose option to select your preferred day from below for appointment:\n1.Monday\n2.Tuesday\n3.Wednesday\n4.Thursday\n5.Friday\n6.Saturday");
+                                this.nCur = State.RESCHEDULE_DAY;
+                                break;
+                            case 2:
+                                sMessage.add("Your appointment is scheduled as before.\nThank you for contacting Group 4 Pediatrics Clinic!");
+                                this.nCur = State.WELCOMING;
+                                break;
+                            default:
+                                sMessage.add("You have chosen incorrect option");
+                                sMessage.add("Choose from below to cancel your upcoming appointment:\n1. If you have reference ID.\n2. If you do not have reference ID and cancel with Patient Name.");
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        sMessage.add("You have chosen incorrect option");
+                        sMessage.add("Choose from below to cancel your upcoming appointment:\n1. If you have reference ID.\n2. If you do not have reference ID and cancel with Patient Name.");
+                    }
                     break;
                 case State.BOOK_PATIENT_AGE_CHOICE:
                     if(int.TryParse(sInMessage, out ageOption))
@@ -217,14 +464,15 @@ namespace AppointmentBot
                     }
                     break;
                 case State.BOOK_PATIENT_AGE:
-                    this.aApp.age = sInMessage;
-                    if(int.TryParse(this.aApp.age, out age))
+                    if(int.TryParse(sInMessage, out age))
                     {
                         switch (ageOption)
                         {
                             case 1:
                                 if(age < 12 && age >= 1)
                                 {
+                                    this.aApp.age = sInMessage + " month(s)";
+                                    this.aApp.savePatientInfo();
                                     this.nCur = State.BOOK_REASON;
                                 }
                                 else if(age >= 12)
@@ -243,6 +491,8 @@ namespace AppointmentBot
                             case 2:
                                 if(age <= 29 && age >= 1)
                                 {
+                                    this.aApp.age = sInMessage + " day(s)";
+                                    this.aApp.savePatientInfo();
                                     this.nCur = State.BOOK_REASON;
                                 }
                                 else if(age > 29)
@@ -261,6 +511,8 @@ namespace AppointmentBot
                             case 3:
                                 if(age <= 18 && age >=1)
                                 {
+                                    this.aApp.age = sInMessage + " year(s)";
+                                    this.aApp.savePatientInfo();
                                     this.nCur = State.BOOK_REASON;
                                 }
                                 else if(age > 18)
