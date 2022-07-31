@@ -1,7 +1,7 @@
 /**
  * Entry point
  */
-$(function(){
+ $(function(){
     // gather and display messages sent from a previous session, if any
     var pastMessages = History.get();
     if(pastMessages !== false){
@@ -73,24 +73,16 @@ function getNextStory(msg){
         console.log('Story: ' + status);
 
         // parse the TwiML server response into simple strings
-        var data = $(xData).find("Response").html();
-        try{
-            data = data.split('</Message><Message>');        	
-        }catch(err){
-        	data = [xData.all[0].textContent];
-        }
-        for(var i=0; i<data.length; i++){
-            data[i] = data[i].replace(/\<(\/)?Message\>/gi, '');
-            data[i] = data[i].replace(/\<(\/)?Response\>/gi, '');
-            data[i] = data[i].replace(/([\r\n]+|\%0a+)/g, '<br>');
+        var aMessages = $(xData).find("Message");
+        for(var i=0; i<aMessages.length; i++){
+            aMessages[i] = $(aMessages[i]).html().replace(/([\r\n]+|\%0a+)/g, '<br>');
 
             // pass strings around
-            History.add(data[i], 'server');
-            print(data[i], 'server');
+            History.add(aMessages[i], 'server');
+            print(aMessages[i], 'server');
         }
     });
 }
-
 /**
  * Print a message to message container
  * @param {string} msg - Message to display

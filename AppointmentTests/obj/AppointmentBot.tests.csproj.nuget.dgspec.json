@@ -1,0 +1,144 @@
+{
+  "format": 1,
+  "restore": {
+    "E:\\QA\\Sem2\\UserExperienceEvaluation\\Project - Pediatrics Chatbot\\PediatricsChatbot\\AppointmentTests\\AppointmentBot.tests.csproj": {}
+  },
+  "projects": {
+    "E:\\QA\\Sem2\\UserExperienceEvaluation\\Project - Pediatrics Chatbot\\PediatricsChatbot\\AppointmentBot\\AppointmentBot.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\QA\\Sem2\\UserExperienceEvaluation\\Project - Pediatrics Chatbot\\PediatricsChatbot\\AppointmentBot\\AppointmentBot.csproj",
+        "projectName": "AppointmentBot",
+        "projectPath": "E:\\QA\\Sem2\\UserExperienceEvaluation\\Project - Pediatrics Chatbot\\PediatricsChatbot\\AppointmentBot\\AppointmentBot.csproj",
+        "packagesPath": "C:\\Users\\dell\\.nuget\\packages\\",
+        "outputPath": "E:\\QA\\Sem2\\UserExperienceEvaluation\\Project - Pediatrics Chatbot\\PediatricsChatbot\\AppointmentBot\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\dell\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "Microsoft.Data.Sqlite": {
+              "target": "Package",
+              "version": "[6.0.7, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.302\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\QA\\Sem2\\UserExperienceEvaluation\\Project - Pediatrics Chatbot\\PediatricsChatbot\\AppointmentTests\\AppointmentBot.tests.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\QA\\Sem2\\UserExperienceEvaluation\\Project - Pediatrics Chatbot\\PediatricsChatbot\\AppointmentTests\\AppointmentBot.tests.csproj",
+        "projectName": "AppointmentBot.tests",
+        "projectPath": "E:\\QA\\Sem2\\UserExperienceEvaluation\\Project - Pediatrics Chatbot\\PediatricsChatbot\\AppointmentTests\\AppointmentBot.tests.csproj",
+        "packagesPath": "C:\\Users\\dell\\.nuget\\packages\\",
+        "outputPath": "E:\\QA\\Sem2\\UserExperienceEvaluation\\Project - Pediatrics Chatbot\\PediatricsChatbot\\AppointmentTests\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\dell\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {
+              "E:\\QA\\Sem2\\UserExperienceEvaluation\\Project - Pediatrics Chatbot\\PediatricsChatbot\\AppointmentBot\\AppointmentBot.csproj": {
+                "projectPath": "E:\\QA\\Sem2\\UserExperienceEvaluation\\Project - Pediatrics Chatbot\\PediatricsChatbot\\AppointmentBot\\AppointmentBot.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "Microsoft.NET.Test.Sdk": {
+              "target": "Package",
+              "version": "[17.1.0, )"
+            },
+            "coverlet.collector": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[3.1.2, )"
+            },
+            "xunit": {
+              "target": "Package",
+              "version": "[2.4.1, )"
+            },
+            "xunit.runner.visualstudio": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.4.3, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.302\\RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
