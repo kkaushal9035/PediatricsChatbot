@@ -328,6 +328,60 @@ namespace AppointmentBot
 
     }
 
+     public bool deleteAppointmentAndPatientInfoByName(string patient, string contact)
+    {
+        using (var connection = new SqliteConnection(DB.GetConnectionString()))
+        {
+            bool found = false;
+            connection.Open();
+            var commandSelect = connection.CreateCommand();
+            commandSelect.CommandText = @"SELECT PATIENT_ID FROM PATIENT WHERE NAME=$name AND CONTACT_NO=$phone;";
+            commandSelect.Parameters.AddWithValue("$name", patient);
+            commandSelect.Parameters.AddWithValue("$phone", contact);
+            
+            using(var reader = commandSelect.ExecuteReader())
+            {
+                while(reader.Read())
+                {
+                    patient_Id = reader.GetString(0);
+                }
+            } 
+            if(string.IsNullOrEmpty(patient_Id))
+            {
+                return false;
+            }
+            else
+            {
+                var commandDelete = connection.CreateCommand();
+                commandDelete.CommandText =
+                @"
+                DELETE FROM APPOINTMENT
+                WHERE PATIENT_ID = $patientid
+                ";
+                commandDelete.Parameters.AddWithValue("$patientid", patient_Id);
+                int nRowsInserted = commandDelete.ExecuteNonQuery();
+                if(nRowsInserted > 0)
+                {
+                    found = true;
+                    var commandDelete2 = connection.CreateCommand();
+                    commandDelete2.CommandText =
+                    @"
+                    DELETE FROM PATIENT
+                    WHERE PATIENT_ID = $patientid
+                    ";
+                    commandDelete2.Parameters.AddWithValue("$patientid", patient_Id);
+                    nRowsInserted = commandDelete2.ExecuteNonQuery();
+                    if(nRowsInserted > 0)
+                    {
+                        found = true;
+                    }
+                }
+            }
+            return found;
+        }
+
+    }
+
 /////////////////////////////////////////////////////////////////////////////////////////////
     public bool deleteAppointmentInfoByID()
     {
@@ -497,6 +551,34 @@ namespace AppointmentBot
        }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
+public string getReferenceID(string patient, string contact)
+    {
+        using (var connection = new SqliteConnection(DB.GetConnectionString()))
+        {
+            connection.Open();
+
+            var commandUpdate = connection.CreateCommand();
+            commandUpdate.CommandText =
+            @"
+            SELECT REFERENCE_ID 
+            FROM APPOINTMENT A JOIN PATIENT P ON A.PATIENT_ID = P.PATIENT_ID
+            WHERE P.NAME = $patient AND CONTACT_NO = $phone AND A.APP_DATE > strftime('%m/%d/%Y', 'now')
+            ORDER BY A.APP_DATE LIMIT 1
+                ";
+            commandUpdate.Parameters.AddWithValue("$patient", patient);
+            commandUpdate.Parameters.AddWithValue("$phone",contact);
+            using(var reader = commandUpdate.ExecuteReader())
+            {
+                while(reader.Read())
+                {
+                    return reader.GetString(0);
+                }
+            }
+        }
+    return "false";
+
+    }
+/////////////////////////////////////////////////////////////////////////////////////////////
        public bool searchByReferenceID()
        {
            using (var connection = new SqliteConnection(DB.GetConnectionString()))
@@ -523,6 +605,7 @@ namespace AppointmentBot
         return false;
 
        }
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////    
         public void getDate()
