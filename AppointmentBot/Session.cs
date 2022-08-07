@@ -237,7 +237,7 @@ namespace AppointmentBot
                             }
                             else
                             {
-                                 sMessage.Add("Sorry, no available slots for your chosen time slot.\nPlease choose another day for appointment:\n1.Monday\n2.Tuesday\n3.Wednesday\n4.Thursday\n5.Friday\n6.Saturday");
+                                sMessage.Add("Sorry, no available slots for your chosen time slot.\nPlease choose another day for appointment:\n1.Monday\n2.Tuesday\n3.Wednesday\n4.Thursday\n5.Friday\n6.Saturday");
                                 this.nCur = State.RESCHEDULE_DAY;
                             }
                         }
@@ -315,7 +315,7 @@ namespace AppointmentBot
                     else
                     {
                         //display information
-                       sMessage.Add(this.aApp.viewAppointmentInfoByName() +"\n.Thank you for contacting Group 4 Pediatrics Clinic.");
+                        sMessage.Add(this.aApp.viewAppointmentInfoByName() +"\n.Thank you for contacting Group 4 Pediatrics Clinic.");
                         this.nCur = State.WELCOMING;
                     }
                     break;
@@ -611,6 +611,12 @@ namespace AppointmentBot
                             {
                                 sMessage.Add("Please choose your availability for below dates for appointment:\n1. "+availableDates[0]+"\n2. "+availableDates[1]+"\n3. "+availableDates[2]+"\n4. "+availableDates[3]);
                             }
+                            else if(availableDates.Count <= 0)
+                            {
+                                sMessage.Add("Sorry, there are no available dates for appointment on the day of your selection.");
+                                sMessage.Add("Choose option to select your preferred day from below for appointment:\n1.Monday\n2.Tuesday\n3.Wednesday\n4.Thursday\n5.Friday\n6.Saturday");
+                                this.nCur = State.BOOK_DAY;
+                            }
                             else
                             {
                                 string msg = "";
@@ -666,11 +672,11 @@ namespace AppointmentBot
                         }
                         else
                         {
-                            if(optionVal >= 0 && optionVal < availableDates.Count)
+                            if(optionVal > 0 && optionVal < availableDates.Count+1)
                             {
                                 this.aApp.appDate = availableDates[optionVal];
-                                 sMessage.Add("Please choose from the below mentioned available slots:\n1.9AM - 11AM\n2.12PM-2PM\n3.3PM-5PM");
-                                 this.nCur = State.BOOK_TIME;
+                                sMessage.Add("Please choose from the below mentioned available slots:\n1.9AM - 11AM\n2.12PM-2PM\n3.3PM-5PM");
+                                this.nCur = State.BOOK_TIME;
                             }
                             else
                             {
@@ -704,7 +710,7 @@ namespace AppointmentBot
                             }
                             else
                             {
-                                 sMessage.Add("Sorry, no available slots for your chosen time slot.\nPlease choose another day for appointment:\n1.Monday\n2.Tuesday\n3.Wednesday\n4.Thursday\n5.Friday\n6.Saturday");
+                                sMessage.Add("Sorry, no available slots for your chosen time slot.\nPlease choose another day for appointment:\n1.Monday\n2.Tuesday\n3.Wednesday\n4.Thursday\n5.Friday\n6.Saturday");
                                 this.nCur = State.BOOK_DAY;
                             }
                         }

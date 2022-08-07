@@ -628,5 +628,27 @@ public string getReferenceID(string patient, string contact)
                 }
             }
         }
+
+        public void deleteAllDataFromSqlLite()
+        {
+            using (var connection = new SqliteConnection(DB.GetConnectionString()))
+            {
+                connection.Open();
+                var commandDelete = connection.CreateCommand();
+                commandDelete.CommandText =
+                @"
+                DELETE FROM APPOINTMENT 
+                ";
+                int nRowsInserted = commandDelete.ExecuteNonQuery();
+
+                var commandDelete2 = connection.CreateCommand();
+                commandDelete2.CommandText =
+                @"
+                DELETE FROM PATIENT 
+                ";
+                nRowsInserted = commandDelete2.ExecuteNonQuery();
+                
+            }
+        }
     }
 }
