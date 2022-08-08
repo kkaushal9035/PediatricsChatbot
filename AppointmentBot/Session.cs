@@ -384,7 +384,7 @@ namespace AppointmentBot
                     found = this.aApp.searchAppointmentByName();
                     if(found == false)
                     {
-                        sMessage.Add("We could not find any record of upcoming appointment for patient "+this.aApp.referenceId);
+                        sMessage.Add("We could not find any record of upcoming appointment for patient "+this.aApp.patientName);
                         this.nCur = State.WELCOMING;
                     }
                     else
@@ -482,14 +482,14 @@ namespace AppointmentBot
                                 break;
                             default:
                                 sMessage.Add("You have chosen incorrect option");
-                                sMessage.Add("Choose from below to cancel your upcoming appointment:\n1. If you have reference ID.\n2. If you do not have reference ID and cancel with Patient Name.");
+                                sMessage.Add("Enter 1 to reschedule the existing appointment\nEnter 2 to keep the appointment as it is and exit.");
                                 break;
                         }
                     }
                     else
                     {
                         sMessage.Add("You have chosen incorrect option");
-                        sMessage.Add("Choose from below to cancel your upcoming appointment:\n1. If you have reference ID.\n2. If you do not have reference ID and cancel with Patient Name.");
+                        sMessage.Add("Enter 1 to reschedule the existing appointment\nEnter 2 to keep the appointment as it is and exit.");
                     }
                     break;
                 case State.BOOK_PATIENT_AGE_CHOICE:

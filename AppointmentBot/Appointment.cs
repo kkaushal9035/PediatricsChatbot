@@ -73,7 +73,7 @@ namespace AppointmentBot
         {
             connection.Open();
             var commandSelect = connection.CreateCommand();
-            commandSelect.CommandText = @"SELECT PATIENT_ID FROM PATIENT WHERE NAME=$name AND CONTACT_NO=$phone";
+            commandSelect.CommandText = @"SELECT PATIENT_ID FROM PATIENT WHERE LOWER(NAME)=LOWER($name) AND CONTACT_NO=$phone";
             commandSelect.Parameters.AddWithValue("$name", patientName);
             commandSelect.Parameters.AddWithValue("$phone", Phone);
             using(var reader = commandSelect.ExecuteReader())
@@ -111,7 +111,7 @@ namespace AppointmentBot
             SELECT P.NAME, P.AGE, P.CONTACT_NO, A.REFERENCE_ID, A.APP_TIME, A.APP_DATE, A.REASON, A.APP_DAY 
             FROM APPOINTMENT A JOIN PATIENT P
             ON A.PATIENT_ID = P.PATIENT_ID
-            WHERE P.NAME = $name AND P.CONTACT_NO = $phone AND A.APP_DATE > strftime('%m/%d/%Y', 'now')
+            WHERE LOWER(P.NAME) = LOWER($name) AND P.CONTACT_NO = $phone AND A.APP_DATE > strftime('%m/%d/%Y', 'now')
             ORDER BY A.APP_DATE LIMIT 1
                 ";
             commandUpdate.Parameters.AddWithValue("$name", patientName);
@@ -188,7 +188,7 @@ namespace AppointmentBot
             @"
             UPDATE PATIENT
             SET AGE = $age
-            WHERE CONTACT_NO = $phone AND NAME = $name
+            WHERE CONTACT_NO = $phone AND LOWER(NAME) = LOWER($name)
                 ";
             commandUpdate.Parameters.AddWithValue("$age", age);
             commandUpdate.Parameters.AddWithValue("$phone", Phone);
@@ -504,7 +504,7 @@ namespace AppointmentBot
                 @"
                 SELECT NAME, AGE, CONTACT_NO 
                 FROM PATIENT 
-                WHERE CONTACT_NO = $phone AND NAME = $name;
+                WHERE CONTACT_NO = $phone AND LOWER(NAME) = LOWER($name);
                     ";
                 commandUpdate.Parameters.AddWithValue("$phone", Phone);
                 commandUpdate.Parameters.AddWithValue("$name", patientName);
@@ -533,7 +533,7 @@ namespace AppointmentBot
             @"
             SELECT APP_TIME, APP_DATE 
             FROM APPOINTMENT A JOIN PATIENT P ON A.PATIENT_ID = P.PATIENT_ID
-            WHERE P.NAME = $patient AND CONTACT_NO = $phone AND A.APP_DATE > strftime('%m/%d/%Y', 'now')
+            WHERE LOWER(P.NAME) = LOWER($patient) AND CONTACT_NO = $phone AND A.APP_DATE > strftime('%m/%d/%Y', 'now')
             ORDER BY A.APP_DATE LIMIT 1
                 ";
             commandUpdate.Parameters.AddWithValue("$patient", patientName);
@@ -562,7 +562,7 @@ public string getReferenceID(string patient, string contact)
             @"
             SELECT REFERENCE_ID 
             FROM APPOINTMENT A JOIN PATIENT P ON A.PATIENT_ID = P.PATIENT_ID
-            WHERE P.NAME = $patient AND CONTACT_NO = $phone AND A.APP_DATE > strftime('%m/%d/%Y', 'now')
+            WHERE LOWER(P.NAME) = LOWER($patient) AND CONTACT_NO = $phone AND A.APP_DATE > strftime('%m/%d/%Y', 'now')
             ORDER BY A.APP_DATE LIMIT 1
                 ";
             commandUpdate.Parameters.AddWithValue("$patient", patient);
