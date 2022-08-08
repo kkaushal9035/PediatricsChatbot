@@ -390,7 +390,7 @@ namespace AppointmentBot
                     else
                     {
                         //display information
-                        sMessage.Add(this.aApp.viewAppointmentInfoByName() +"\n.Please enter Y to cancel this appointment.");
+                        sMessage.Add(this.aApp.viewAppointmentInfoByName() +"\nPlease enter Y to cancel this appointment.");
                         this.nCur = State.CANCEL_CONFIRMATIONBYNAME;
                     }
                     break;
@@ -405,7 +405,7 @@ namespace AppointmentBot
                     else
                     {
                         //display information
-                        sMessage.Add(this.aApp.viewAppointmentInfoByID() +"\n.Please enter Y to cancel this appointment.");
+                        sMessage.Add(this.aApp.viewAppointmentInfoByID() +"\nPlease enter Y to cancel this appointment.");
                         this.nCur = State.CANCEL_CONFIRMATIONBYID;
                     }
                     break;
