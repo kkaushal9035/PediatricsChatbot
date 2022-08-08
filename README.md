@@ -4,7 +4,7 @@ Chatbot for managing pediatrics appointments
 To run:
 
 ```
-dotnet run --project AppointmentBotPage
+dotnet run --project AppointmentClass
 
 ```
 
