@@ -255,23 +255,17 @@ namespace AppointmentBot
                     if(sInMessage.Equals("Y",StringComparison.OrdinalIgnoreCase))
                     {
                         //insert appointment details in DB
-                        found = this.aApp.updateAppointmentInfo();
-                        if(found == true)
+                        this.aApp.updateAppointmentInfo();
+                        if(!string.IsNullOrEmpty(this.aApp.patientName))
                         {
-                            if(!string.IsNullOrEmpty(this.aApp.patientName))
-                            {
-                                sMessage.Add(this.aApp.viewAppointmentInfoByName());
-                            }
-                            else if(!string.IsNullOrEmpty(this.aApp.referenceId))
-                            {
-                                sMessage.Add(this.aApp.viewAppointmentInfoByID());
-                            }
-                             sMessage.Add("Your appointment has been successfully rescheduled.\nThank you for contacting Group 4 Pediatrics Clinic!");
+                            sMessage.Add(this.aApp.viewAppointmentInfoByName());
                         }
-                        else
+                        else if(!string.IsNullOrEmpty(this.aApp.referenceId))
                         {
-                            sMessage.Add("Sorry, we did not find any upcoming appointment for you.\nThank you for contacting Group 4 Pediatrics Clinic!");
+                            sMessage.Add(this.aApp.viewAppointmentInfoByID());
                         }
+                            sMessage.Add("Your appointment has been successfully rescheduled.\nThank you for contacting Group 4 Pediatrics Clinic!");
+                        
                     } 
                     else
                     {
@@ -413,15 +407,8 @@ namespace AppointmentBot
                     if(sInMessage.Equals("Y",StringComparison.OrdinalIgnoreCase))
                     {
                         //insert appointment details in DB
-                        found = this.aApp.deleteAppointmentInfoByID();
-                        if(found == true)
-                        {
-                            sMessage.Add("Your appointment has been successfully cancelled.\nThank you for contacting Group 4 Pediatrics Clinic!");
-                        }
-                        else
-                        {
-                            sMessage.Add("Sorry, we are unable to find any upcoming appointment for this reference ID to cancel");
-                        }
+                        this.aApp.deleteAppointmentInfoByID();
+                        sMessage.Add("Your appointment has been successfully cancelled.\nThank you for contacting Group 4 Pediatrics Clinic!");
                     }
                     else
                     {
@@ -433,15 +420,8 @@ namespace AppointmentBot
                     if(sInMessage.Equals("Y",StringComparison.OrdinalIgnoreCase))
                     {
                         //insert appointment details in DB
-                        found = this.aApp.deleteAppointmentInfoByName();
-                        if(found == true)
-                        {
-                            sMessage.Add("Your appointment has been successfully cancelled.\nThank you for contacting Group 4 Pediatrics Clinic!");
-                        }
-                        else
-                        {
-                            sMessage.Add("Sorry, we are unable to find any upcoming appointment for this patient to cancel");
-                        }
+                        this.aApp.deleteAppointmentInfoByName();
+                        sMessage.Add("Your appointment has been successfully cancelled.\nThank you for contacting Group 4 Pediatrics Clinic!");
                     }
                     else
                     {

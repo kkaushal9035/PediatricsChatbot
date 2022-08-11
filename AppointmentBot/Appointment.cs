@@ -111,7 +111,7 @@ namespace AppointmentBot
             SELECT P.NAME, P.AGE, P.CONTACT_NO, A.REFERENCE_ID, A.APP_TIME, A.APP_DATE, A.REASON, A.APP_DAY 
             FROM APPOINTMENT A JOIN PATIENT P
             ON A.PATIENT_ID = P.PATIENT_ID
-            WHERE LOWER(P.NAME) = LOWER($name) AND P.CONTACT_NO = $phone AND A.APP_DATE > strftime('%m/%d/%Y', 'now')
+            WHERE LOWER(P.NAME) = LOWER($name) AND P.CONTACT_NO = $phone AND Date(A.APP_DATE) > (strftime('%Y-%m-%d', 'now'))
             ORDER BY A.APP_DATE LIMIT 1
                 ";
             commandUpdate.Parameters.AddWithValue("$name", patientName);
@@ -148,7 +148,7 @@ namespace AppointmentBot
             SELECT P.NAME, P.AGE, P.CONTACT_NO, A.REFERENCE_ID, A.APP_TIME, A.APP_DATE, A.REASON, A.APP_DAY 
             FROM APPOINTMENT A JOIN PATIENT P
             ON A.PATIENT_ID = P.PATIENT_ID
-            WHERE A.REFERENCE_ID = $reference AND A.APP_DATE > strftime('%m/%d/%Y', 'now')
+            WHERE A.REFERENCE_ID = $reference AND Date(A.APP_DATE) > (strftime('%Y-%m-%d', 'now'))
             ORDER BY A.APP_DATE LIMIT 1
                 ";
             commandUpdate.Parameters.AddWithValue("$reference", referenceId);
@@ -214,8 +214,8 @@ namespace AppointmentBot
     }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-    public bool updateAppointmentInfo(){
-        if(string.IsNullOrEmpty(referenceId))
+    public void updateAppointmentInfo(){
+        if(!string.IsNullOrEmpty(referenceId))
         {
             using (var connection = new SqliteConnection(DB.GetConnectionString()))
             {
@@ -223,24 +223,21 @@ namespace AppointmentBot
                 var commandUpdate = connection.CreateCommand();
                 commandUpdate.CommandText =
                 @"
-                UPDATE TABLE APPOINTMENT SET 
+                UPDATE APPOINTMENT SET 
                 APP_DATE = $appDate, 
                 APP_TIME = $appTime,
                 APP_DAY = $appDay
-                WHERE REFERENCE_ID = $reference AND APP_DATE > strftime('%m/%d/%Y', 'now')
+                WHERE REFERENCE_ID = $reference AND Date(APP_DATE) > (strftime('%Y-%m-%d', 'now'))
                 ";
                 commandUpdate.Parameters.AddWithValue("$reference", referenceId);
                 commandUpdate.Parameters.AddWithValue("$appDate", appDate);
                 commandUpdate.Parameters.AddWithValue("$appTime", appTime);
                 commandUpdate.Parameters.AddWithValue("$appDay", appDay);
                 int nRowsInserted = commandUpdate.ExecuteNonQuery();
-                if(nRowsInserted <= 0 )
-                {
-                    return false;
-                }
+                
             }
         }
-        else if(string.IsNullOrEmpty(patientName))
+        else if(!string.IsNullOrEmpty(patientName))
         {
             using (var connection = new SqliteConnection(DB.GetConnectionString()))
             {
@@ -259,13 +256,13 @@ namespace AppointmentBot
                 var commandUpdate = connection.CreateCommand();
                 commandUpdate.CommandText =
                 @"
-                UPDATE TABLE APPOINTMENT SET 
+                UPDATE APPOINTMENT SET 
                 APP_DATE = $appDate, 
                 APP_TIME = $appTime,
                 APP_DAY = $appDay
                 WHERE REFERENCE_ID = (
                     SELECT REFERENCE_ID FROM APPOINTMENT 
-                    WHERE PATIENT_ID = $patientid AND APP_DATE > strftime('%m/%d/%Y', 'now')
+                    WHERE PATIENT_ID = $patientid AND Date(APP_DATE) > (strftime('%Y-%m-%d', 'now'))
                     ORDER BY APP_DATE LIMIT 1)
                 ";
                 commandUpdate.Parameters.AddWithValue("$appDate", appDate);
@@ -273,13 +270,10 @@ namespace AppointmentBot
                 commandUpdate.Parameters.AddWithValue("$appDay", appDay);
                 commandUpdate.Parameters.AddWithValue("$patientId", patient_Id);
                 int nRowsInserted = commandUpdate.ExecuteNonQuery();
-                if(nRowsInserted <= 0 )
-                {
-                    return false;
-                }
+                
             }
         }
-        return true;
+        
     }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -312,7 +306,7 @@ namespace AppointmentBot
                 DELETE FROM APPOINTMENT
                 WHERE REFERENCE_ID = (
                     SELECT REFERENCE_ID FROM APPOINTMENT 
-                    WHERE PATIENT_ID = $patientid AND APP_DATE > strftime('%m/%d/%Y', 'now')
+                    WHERE PATIENT_ID = $patientid AND Date(APP_DATE) > (strftime('%Y-%m-%d', 'now'))
                     ORDER BY APP_DATE LIMIT 1
                     )
                 ";
@@ -328,60 +322,6 @@ namespace AppointmentBot
 
     }
 
-     public bool deleteAppointmentAndPatientInfoByName(string patient, string contact)
-    {
-        using (var connection = new SqliteConnection(DB.GetConnectionString()))
-        {
-            bool found = false;
-            connection.Open();
-            var commandSelect = connection.CreateCommand();
-            commandSelect.CommandText = @"SELECT PATIENT_ID FROM PATIENT WHERE NAME=$name AND CONTACT_NO=$phone;";
-            commandSelect.Parameters.AddWithValue("$name", patient);
-            commandSelect.Parameters.AddWithValue("$phone", contact);
-            
-            using(var reader = commandSelect.ExecuteReader())
-            {
-                while(reader.Read())
-                {
-                    patient_Id = reader.GetString(0);
-                }
-            } 
-            if(string.IsNullOrEmpty(patient_Id))
-            {
-                return false;
-            }
-            else
-            {
-                var commandDelete = connection.CreateCommand();
-                commandDelete.CommandText =
-                @"
-                DELETE FROM APPOINTMENT
-                WHERE PATIENT_ID = $patientid
-                ";
-                commandDelete.Parameters.AddWithValue("$patientid", patient_Id);
-                int nRowsInserted = commandDelete.ExecuteNonQuery();
-                if(nRowsInserted > 0)
-                {
-                    found = true;
-                    var commandDelete2 = connection.CreateCommand();
-                    commandDelete2.CommandText =
-                    @"
-                    DELETE FROM PATIENT
-                    WHERE PATIENT_ID = $patientid
-                    ";
-                    commandDelete2.Parameters.AddWithValue("$patientid", patient_Id);
-                    nRowsInserted = commandDelete2.ExecuteNonQuery();
-                    if(nRowsInserted > 0)
-                    {
-                        found = true;
-                    }
-                }
-            }
-            return found;
-        }
-
-    }
-
 /////////////////////////////////////////////////////////////////////////////////////////////
     public bool deleteAppointmentInfoByID()
     {
@@ -392,7 +332,7 @@ namespace AppointmentBot
             commandUpdate.CommandText =
             @"
             DELETE FROM APPOINTMENT 
-            WHERE REFERENCE_ID = $reference AND APP_DATE > strftime('%m/%d/%Y', 'now')
+            WHERE REFERENCE_ID = $reference AND Date(APP_DATE) > (strftime('%Y-%m-%d', 'now'))
             ";
             commandUpdate.Parameters.AddWithValue("$reference", referenceId);
             int nRowsInserted = commandUpdate.ExecuteNonQuery();
@@ -420,7 +360,7 @@ namespace AppointmentBot
                 commandSelect.CommandText =
                 @"
                 SELECT APP_DATE FROM APPOINTMENT 
-                WHERE APP_DAY = $appDay AND APP_DATE > strftime('%m/%d/%Y', 'now')
+                WHERE APP_DAY = $appDay AND Date(APP_DATE) > (strftime('%Y-%m-%d', 'now'))
                 ORDER BY APP_DATE
                     ";
                 commandSelect.Parameters.AddWithValue("$appDay", appDay);
@@ -494,34 +434,6 @@ namespace AppointmentBot
        }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-       public bool searchPatientInfo()
-       {
-           using (var connection = new SqliteConnection(DB.GetConnectionString()))
-           {
-                connection.Open();
-                var commandUpdate = connection.CreateCommand();
-                commandUpdate.CommandText =
-                @"
-                SELECT NAME, AGE, CONTACT_NO 
-                FROM PATIENT 
-                WHERE CONTACT_NO = $phone AND LOWER(NAME) = LOWER($name);
-                    ";
-                commandUpdate.Parameters.AddWithValue("$phone", Phone);
-                commandUpdate.Parameters.AddWithValue("$name", patientName);
-                
-                using(var reader = commandUpdate.ExecuteReader())
-                {
-                    while(reader.Read())
-                    {
-                        return true;
-                    }
-                }
-            }
-        return false;
-
-       }
-
-/////////////////////////////////////////////////////////////////////////////////////////////
        public bool searchAppointmentByName()
        {
            using (var connection = new SqliteConnection(DB.GetConnectionString()))
@@ -533,7 +445,7 @@ namespace AppointmentBot
             @"
             SELECT APP_TIME, APP_DATE 
             FROM APPOINTMENT A JOIN PATIENT P ON A.PATIENT_ID = P.PATIENT_ID
-            WHERE LOWER(P.NAME) = LOWER($patient) AND CONTACT_NO = $phone AND A.APP_DATE > strftime('%m/%d/%Y', 'now')
+            WHERE LOWER(P.NAME) = LOWER($patient) AND CONTACT_NO = $phone AND Date(A.APP_DATE) > (strftime('%Y-%m-%d', 'now'))
             ORDER BY A.APP_DATE LIMIT 1
                 ";
             commandUpdate.Parameters.AddWithValue("$patient", patientName);
@@ -562,7 +474,7 @@ public string getReferenceID(string patient, string contact)
             @"
             SELECT REFERENCE_ID 
             FROM APPOINTMENT A JOIN PATIENT P ON A.PATIENT_ID = P.PATIENT_ID
-            WHERE LOWER(P.NAME) = LOWER($patient) AND CONTACT_NO = $phone AND A.APP_DATE > strftime('%m/%d/%Y', 'now')
+            WHERE LOWER(P.NAME) = LOWER($patient) AND CONTACT_NO = $phone AND Date(A.APP_DATE) > (strftime('%Y-%m-%d', 'now'))
             ORDER BY A.APP_DATE LIMIT 1
                 ";
             commandUpdate.Parameters.AddWithValue("$patient", patient);
@@ -590,7 +502,7 @@ public string getReferenceID(string patient, string contact)
                 @"
                 SELECT APP_TIME, APP_DATE 
                 FROM APPOINTMENT 
-                WHERE REFERENCE_ID = $reference AND APP_DATE > strftime('%m/%d/%Y', 'now')
+                WHERE REFERENCE_ID = $reference AND Date(APP_DATE) > (strftime('%Y-%m-%d', 'now'))
                 ORDER BY APP_DATE;
                     ";
                 commandUpdate.Parameters.AddWithValue("$reference", referenceId);
@@ -624,7 +536,7 @@ public string getReferenceID(string patient, string contact)
             {
                 foreach (var date in item)
                 {
-                   futureDates.Add(date.ToString("d"));
+                   futureDates.Add(date.ToString("yyyy-MM-dd"));
                 }
             }
         }
@@ -638,13 +550,14 @@ public string getReferenceID(string patient, string contact)
                 commandDelete.CommandText =
                 @"
                 DELETE FROM APPOINTMENT 
+                WHERE PATIENT_ID IN (SELECT PATIENT_ID FROM PATIENT WHERE NAME LIKE '%Patient%')
                 ";
                 int nRowsInserted = commandDelete.ExecuteNonQuery();
 
                 var commandDelete2 = connection.CreateCommand();
                 commandDelete2.CommandText =
                 @"
-                DELETE FROM PATIENT 
+                DELETE FROM PATIENT WHERE NAME LIKE '%Patient%'
                 ";
                 nRowsInserted = commandDelete2.ExecuteNonQuery();
                 
